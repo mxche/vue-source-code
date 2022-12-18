@@ -1,5 +1,5 @@
 
-import { pushTarget,popTarget } from "./dep";
+import { pushTarget,popTarget,Dep } from "./dep";
 import {queueWatcher} from './nextTick'
 import {util} from '../utils/index'
 let uid = 0
@@ -49,13 +49,14 @@ export class Watcher {
       dep.addSub(this)
     }
   }
-  //让计算属性中的引用类型的依赖关联到渲染watcher中，触发更新
+  //让计算属性中的引用属性的依赖关联到渲染watcher中，触发更新
   depend(){
     let i = this.deps.length
     while (i--) {
       this.deps[i].depend()
     }
   }
+  //计算属性专用(计算watcher)
   evaluate(){
     //取计算属性的值，
     this.value = this.get()
@@ -69,6 +70,7 @@ export class Watcher {
     popTarget()
     return value
   }
+  //watch专用（用户watcher）
   run(){
     //watcher渲染的拿到最新的值
     const value =  this.get()
@@ -76,7 +78,7 @@ export class Watcher {
       this.cb(value, this.value);
     }
   }
-
+  //更新渲染（渲染watcher）
   update(){
     //计算属性watcher，只更新值
     if(this.lazy){

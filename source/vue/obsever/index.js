@@ -1,6 +1,7 @@
 import {arrayMethods} from './array'
 import { def } from "../utils/index";
 import Dep from './dep';
+
 export function defineReactive (data,key,value){
   let dep  = new Dep()
     //如果typeof value本身是一对象 递归观察
@@ -15,14 +16,18 @@ export function defineReactive (data,key,value){
         dep.depend()//双向依赖
         if(childOb){
           childOb.dep.depend()
+          //数据递归, 遍历每项，若是对象则再进行观察
+          if (Array.isArray(value)) {
+            dependArray(value)
+          }
         }
       }
       return value
     },
     set(newValue){
       if(newValue===value) return
-      console.log('✅修改数据--触发set\n'+'当前值:'+newValue+'\n' +'当前dep:',dep);
       value = newValue
+      console.log('✅修改数据--触发set\n'+'当前值:'+newValue+'\n' +'当前dep:',dep,value);
       //通知更新
       dep.notify()
     }
@@ -57,8 +62,16 @@ export class Observer{
       obsever(items[i])
     }
   }
+}
 
-
+export function dependArray(value) {
+  for(let i=0; i<value.length; i++) {
+      let currentItem = value[i];
+      currentItem.__ob__ && currentItem.__ob__.dep.depend();
+      if (Array.isArray(currentItem)){
+          dependArray(currentItem); //数组递归
+      }
+  }
 }
 
 export function obsever(data){

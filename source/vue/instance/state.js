@@ -70,6 +70,8 @@ return function(){
     if(watcher.dirty){
       watcher.evaluate()
     }
+
+    //是计算属性watcher,添加dep关联[name.dep age.dep]
     if(Dep.target){
       watcher.depend()
     }
